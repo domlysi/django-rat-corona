@@ -12,14 +12,20 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-SECRET_FILE = os.path.join(BASE_DIR, 'dev', 'django_key.txt')
+if DEBUG and not os.path.exists(os.path.join(BASE_DIR, 'dev')):
+    os.mkdir(os.path.join(BASE_DIR, 'dev'))
+
 try:
+    SECRET_FILE = os.path.join(BASE_DIR, 'dev', 'django_key.txt')
     SECRET_KEY = open(SECRET_FILE).read().strip()
 except IOError:
     try:
@@ -33,9 +39,6 @@ except IOError:
     except IOError:
         Exception('Please create a %s file with random characters \
         to generate your secret key!' % SECRET_FILE)
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

