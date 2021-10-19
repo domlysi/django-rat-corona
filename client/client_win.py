@@ -7,6 +7,7 @@ import threading
 import time
 import traceback
 import winreg
+
 from urllib.parse import urlparse
 from uuid import getnode as get_mac
 
