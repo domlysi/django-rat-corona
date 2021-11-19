@@ -11,6 +11,7 @@ class Client(models.Model):
     mac = models.CharField(max_length=17,)
 
     last_ip = models.GenericIPAddressField()
+    last_online = models.DateTimeField(null=True, blank=True)
 
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
@@ -47,12 +48,11 @@ class Command(models.Model):
 
 
 class CommandResult(models.Model):
-    command = models.ForeignKey(Command, on_delete=models.CASCADE)
-    result = models.TextField(null=True, blank=True)
-    has_error = models.BooleanField(default=False)
+    command = models.ForeignKey(Command, on_delete=models.CASCADE, editable=False)
+    result = models.TextField(null=True, blank=True, editable=False)
+    has_error = models.BooleanField(default=False, editable=False)
 
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True, editable=False)
 
     def __str__(self):
         return "%s" % truncatechars(self.command.command, 100)

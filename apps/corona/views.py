@@ -1,7 +1,9 @@
+from datetime import datetime
+
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from apps.corona.models import Command, CommandResult
+from apps.corona.models import Command, CommandResult, Client
 from apps.corona.serializers import ClientSerializer, CommandSerializer, CommandResultSerializer
 
 
@@ -34,6 +36,9 @@ class CommandsView(generics.ListAPIView):
         return Command.objects.filter(client__uuid=self.request.GET.get('id'), received=False)
 
     def get(self, request, *args, **kwargs):
+        # Update client 'last_online'
+        Client.objects.filter(uuid=self.request.GET.get('id')).update(last_online=datetime.now())
+
         r = super().get(request, *args, **kwargs)
         self.get_queryset().update(received=True)
         return r

@@ -30,11 +30,11 @@ class ClientAdmin(admin.ModelAdmin):
         'computer_name',
         'os',
         'last_ip',
+        'last_online',
         'mac',
-        'updated_on',
         'created_on',
     ]
-    readonly_fields = ('updated_on', 'created_on')
+    readonly_fields = ('last_online', 'created_on')
 
 
 @admin.register(CommandResult)
@@ -45,6 +45,7 @@ class CommandResultAdmin(admin.ModelAdmin):
         'is_success',
         'created_on',
     ]
+    readonly_fields = ['result', 'computer_name', 'is_success', 'created_on']
 
     def computer_name(self, instance):
         return instance.command.client.computer_name
